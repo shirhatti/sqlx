@@ -26,23 +26,23 @@ export interface SqlxConfig {
 /**
  * Validate configuration
  */
-function validateConfig(config: SqlxConfig): void {
+export function validateConfig(config: SqlxConfig): void {
   // Validate connection
   if (!config.connection) {
-    throw new Error('Missing "connection" in config');
+    throw new Error("Missing 'connection' in config");
   }
 
   if (!config.connection.account) {
-    throw new Error('Missing "connection.account" in config');
+    throw new Error("Missing 'connection.account' in config");
   }
 
   // Validate output
   if (!config.output) {
-    throw new Error('Missing "output" in config');
+    throw new Error("Missing 'output' in config");
   }
 
   if (typeof config.output !== 'string' || config.output.trim() === '') {
-    throw new Error('"output" must be a non-empty string');
+    throw new Error("'output' must be a non-empty string");
   }
 
   if (!config.output.endsWith('.ts')) {
@@ -54,11 +54,11 @@ function validateConfig(config: SqlxConfig): void {
 
   // Validate schemas
   if (!config.schemas || config.schemas.length === 0) {
-    throw new Error('Missing or empty "schemas" in config');
+    throw new Error("Missing or empty 'schemas' in config");
   }
 
   if (!Array.isArray(config.schemas)) {
-    throw new Error('"schemas" must be an array');
+    throw new Error("'schemas' must be an array");
   }
 
   for (const schema of config.schemas) {
@@ -69,21 +69,21 @@ function validateConfig(config: SqlxConfig): void {
 
   // Validate optional fields
   if (config.excludeTables && !Array.isArray(config.excludeTables)) {
-    throw new Error('"excludeTables" must be an array if provided');
+    throw new Error("'excludeTables' must be an array if provided");
   }
 
   if (config.includeTables && !Array.isArray(config.includeTables)) {
-    throw new Error('"includeTables" must be an array if provided');
+    throw new Error("'includeTables' must be an array if provided");
   }
 
   if (config.cache) {
     if (typeof config.cache.enabled !== 'boolean') {
-      throw new Error('"cache.enabled" must be a boolean');
+      throw new Error("'cache.enabled' must be a boolean");
     }
 
     if (config.cache.ttl !== undefined) {
       if (typeof config.cache.ttl !== 'number' || config.cache.ttl <= 0) {
-        throw new Error('"cache.ttl" must be a positive number if provided');
+        throw new Error("'cache.ttl' must be a positive number if provided");
       }
     }
   }

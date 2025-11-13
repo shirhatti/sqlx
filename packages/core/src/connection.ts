@@ -5,6 +5,38 @@
 import snowflake from 'snowflake-sdk';
 import type { SnowflakeConfig, QueryResult } from './types.js';
 
+/**
+ * Snowflake error codes
+ * @see https://docs.snowflake.com/en/user-guide/jdbc-error-codes.html
+ */
+const SNOWFLAKE_ERROR_CODES = {
+  /** Authentication failed - invalid credentials */
+  AUTH_FAILED: '390100',
+  /** Invalid warehouse specified */
+  INVALID_WAREHOUSE: '390201',
+  /** Invalid database or schema specified */
+  INVALID_DATABASE: '390189',
+} as const;
+
+/**
+ * SQL state codes
+ * @see https://docs.snowflake.com/en/user-guide/odbc-error-codes.html
+ */
+const SQL_STATE_CODES = {
+  /** Connection exception - unable to connect */
+  CONNECTION_EXCEPTION: '08001',
+} as const;
+
+/**
+ * Node.js error codes
+ */
+const NODE_ERROR_CODES = {
+  /** DNS lookup failed - hostname not found */
+  NOT_FOUND: 'ENOTFOUND',
+  /** Connection timeout */
+  TIMEOUT: 'ETIMEDOUT',
+} as const;
+
 export class SnowflakeConnection {
   private connection: snowflake.Connection | null = null;
   private config: SnowflakeConfig;
@@ -44,18 +76,22 @@ export class SnowflakeConnection {
               message: string;
             };
 
-            if (snowflakeErr.code === 'ENOTFOUND') {
+            if (snowflakeErr.code === NODE_ERROR_CODES.NOT_FOUND) {
               errorMessage = `Invalid Snowflake account '${this.config.account}'. Please verify the account identifier is correct.`;
             } else if (
-              snowflakeErr.code === '390100' ||
-              snowflakeErr.sqlState === '08001'
+              snowflakeErr.code === SNOWFLAKE_ERROR_CODES.AUTH_FAILED ||
+              snowflakeErr.sqlState === SQL_STATE_CODES.CONNECTION_EXCEPTION
             ) {
               errorMessage = `Authentication failed for user '${this.config.username}'. Please verify your credentials.`;
-            } else if (snowflakeErr.code === 'ETIMEDOUT') {
+            } else if (snowflakeErr.code === NODE_ERROR_CODES.TIMEOUT) {
               errorMessage = `Connection timeout when connecting to Snowflake account '${this.config.account}'. Please check your network connection.`;
-            } else if (snowflakeErr.code === '390201') {
+            } else if (
+              snowflakeErr.code === SNOWFLAKE_ERROR_CODES.INVALID_WAREHOUSE
+            ) {
               errorMessage = `Invalid warehouse '${this.config.warehouse}'. Please verify the warehouse exists and you have access.`;
-            } else if (snowflakeErr.code === '390189') {
+            } else if (
+              snowflakeErr.code === SNOWFLAKE_ERROR_CODES.INVALID_DATABASE
+            ) {
               errorMessage = `Invalid database or schema. Please verify '${this.config.database}${this.config.schema ? `.${this.config.schema}` : ''}' exists and you have access.`;
             }
 
@@ -155,7 +191,11 @@ export class SnowflakeConnection {
    * Check if connected
    */
   isConnected(): boolean {
-    return this.connection !== null && this.connection.isUp();
+    return (
+      this.connection !== null &&
+      typeof this.connection.isUp === 'function' &&
+      this.connection.isUp()
+    );
   }
 }
 

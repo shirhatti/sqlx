@@ -2,7 +2,7 @@
  * Tests for configuration management
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { writeFile, mkdir, rm } from 'fs/promises';
 import { join } from 'path';
 import { loadConfig, mergeConfig, loadConfigFromEnv } from './config.js';
@@ -61,7 +61,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      'Missing "connection" in config'
+      "Missing 'connection' in config"
     );
   });
 
@@ -77,7 +77,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      'Missing "connection.account" in config'
+      "Missing 'connection.account' in config"
     );
   });
 
@@ -92,7 +92,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      'Missing "output" in config'
+      "Missing 'output' in config"
     );
   });
 
@@ -108,7 +108,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      '"output" must be a non-empty string'
+      "'output' must be a non-empty string"
     );
   });
 
@@ -123,19 +123,16 @@ describe('loadConfig', () => {
 
     await writeFile(testConfigPath, JSON.stringify(config));
 
-    const consoleSpy = { calls: [] as string[] };
-    const originalWarn = console.warn;
-    console.warn = (...args: unknown[]) => {
-      consoleSpy.calls.push(args.join(' '));
-    };
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    await loadConfig(testConfigPath);
-
-    console.warn = originalWarn;
-
-    expect(
-      consoleSpy.calls.some((call) => call.includes('.ts extension'))
-    ).toBe(true);
+    try {
+      await loadConfig(testConfigPath);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('.ts extension')
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 
   it('should throw error for missing schemas', async () => {
@@ -149,7 +146,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      'Missing or empty "schemas" in config'
+      "Missing or empty 'schemas' in config"
     );
   });
 
@@ -165,7 +162,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      'Missing or empty "schemas" in config'
+      "Missing or empty 'schemas' in config"
     );
   });
 
@@ -181,7 +178,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      '"schemas" must be an array'
+      "'schemas' must be an array"
     );
   });
 
@@ -214,7 +211,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      '"excludeTables" must be an array if provided'
+      "'excludeTables' must be an array if provided"
     );
   });
 
@@ -231,7 +228,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      '"includeTables" must be an array if provided'
+      "'includeTables' must be an array if provided"
     );
   });
 
@@ -250,7 +247,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      '"cache.enabled" must be a boolean'
+      "'cache.enabled' must be a boolean"
     );
   });
 
@@ -270,7 +267,7 @@ describe('loadConfig', () => {
     await writeFile(testConfigPath, JSON.stringify(invalidConfig));
 
     await expect(loadConfig(testConfigPath)).rejects.toThrow(
-      '"cache.ttl" must be a positive number'
+      "'cache.ttl' must be a positive number"
     );
   });
 
@@ -298,9 +295,36 @@ describe('loadConfig', () => {
     expect(config.cache?.enabled).toBe(true);
     expect(config.cache?.ttl).toBe(3600);
   });
+
+  it('should validate config during loadConfig', async () => {
+    // This test verifies that validation is performed during loadConfig
+    // by ensuring that an invalid config (missing required field) throws an error
+    const invalidConfig = {
+      // Missing 'connection' field - should be caught by validateConfig
+      output: 'types.ts',
+      schemas: ['PUBLIC'],
+    };
+
+    await writeFile(testConfigPath, JSON.stringify(invalidConfig));
+
+    // If validateConfig is not called, this would not throw
+    await expect(loadConfig(testConfigPath)).rejects.toThrow(
+      "Missing 'connection' in config"
+    );
+  });
 });
 
 describe('loadConfigFromEnv', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
   it('should load configuration from environment variables', () => {
     process.env.SNOWFLAKE_ACCOUNT = 'test-account';
     process.env.SNOWFLAKE_USERNAME = 'test-user';
@@ -319,15 +343,6 @@ describe('loadConfigFromEnv', () => {
     expect(config.database).toBe('TEST_DB');
     expect(config.schema).toBe('PUBLIC');
     expect(config.role).toBe('TEST_ROLE');
-
-    // Cleanup
-    delete process.env.SNOWFLAKE_ACCOUNT;
-    delete process.env.SNOWFLAKE_USERNAME;
-    delete process.env.SNOWFLAKE_PASSWORD;
-    delete process.env.SNOWFLAKE_WAREHOUSE;
-    delete process.env.SNOWFLAKE_DATABASE;
-    delete process.env.SNOWFLAKE_SCHEMA;
-    delete process.env.SNOWFLAKE_ROLE;
   });
 
   it('should handle missing environment variables', () => {
