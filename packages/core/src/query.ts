@@ -21,8 +21,28 @@ class SqlQuery<T> implements Query<T> {
    */
   async execute(): Promise<T[]> {
     const conn = getConnection();
-    const result = await conn.execute<T>(this.parsed.sql, this.parsed.params);
-    return result.rows;
+
+    // Verify connection is still active before executing
+    if (!conn.isConnected()) {
+      throw new Error(
+        'Lost connection to Snowflake. Please reconnect before executing queries.'
+      );
+    }
+
+    try {
+      const result = await conn.execute<T>(
+        this.parsed.sql,
+        this.parsed.params
+      );
+      return result.rows;
+    } catch (err) {
+      // Re-throw with better error context
+      const errorMessage =
+        err instanceof Error ? err.message : String(err);
+      throw new Error(
+        `Query execution failed: ${errorMessage}\nSQL: ${this.parsed.sql}\nParameters: ${JSON.stringify(this.parsed.params)}`
+      );
+    }
   }
 
   /**
@@ -77,6 +97,22 @@ export async function executeQuery<T>(
   binds: unknown[] = []
 ): Promise<T[]> {
   const conn = getConnection();
-  const result = await conn.execute<T>(sqlText, binds);
-  return result.rows;
+
+  // Verify connection is still active before executing
+  if (!conn.isConnected()) {
+    throw new Error(
+      'Lost connection to Snowflake. Please reconnect before executing queries.'
+    );
+  }
+
+  try {
+    const result = await conn.execute<T>(sqlText, binds);
+    return result.rows;
+  } catch (err) {
+    // Re-throw with better error context
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `Query execution failed: ${errorMessage}\nSQL: ${sqlText}\nParameters: ${JSON.stringify(binds)}`
+    );
+  }
 }
