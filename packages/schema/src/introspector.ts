@@ -44,34 +44,27 @@ export class SchemaIntrospector {
       ORDER BY table_schema, table_name
     `;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const result = await this.connection.execute<TableInfo>(query);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     let tables = result.rows;
 
     // Filter by include/exclude patterns
     if (config.includeTables && config.includeTables.length > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       tables = tables.filter((table) =>
         config.includeTables!.some((pattern) =>
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
           this.matchPattern(table.table_name, pattern)
         )
       );
     }
 
     if (config.excludeTables && config.excludeTables.length > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       tables = tables.filter(
         (table) =>
           !config.excludeTables!.some((pattern) =>
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
             this.matchPattern(table.table_name, pattern)
           )
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return tables;
   }
 
@@ -116,9 +109,7 @@ export class SchemaIntrospector {
       ORDER BY table_name, ordinal_position
     `;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const result = await this.connection.execute<ColumnInfo>(query);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
     return result.rows;
   }
 
@@ -166,7 +157,6 @@ export class SchemaIntrospector {
    */
   async testConnection(): Promise<boolean> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       await this.connection.execute('SELECT 1');
       return true;
     } catch {
