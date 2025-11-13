@@ -1,0 +1,98 @@
+# Repository settings
+repository:
+  # See https://docs.github.com/en/rest/reference/repos#update-a-repository for all available settings.
+
+  # A short description of the repository that will show up on GitHub
+  description: A database toolkit for Rust
+
+  # A URL with more information about the repository
+  homepage: https://github.com/launchbadge/sqlx
+
+  # Keep this repo private
+  private: false
+
+  # Either `true` to enable issues for this repository, `false` to disable them.
+  has_issues: true
+
+  # Either `true` to enable projects for this repository, or `false` to disable them.
+  # If projects are disabled for the organization, passing `true` will cause an API error.
+  has_projects: true
+
+  # Either `true` to enable the wiki for this repository, `false` to disable it.
+  has_wiki: false
+
+  # Either `true` to enable downloads for this repository, `false` to disable them.
+  has_downloads: true
+
+  # Updates the default branch for this repository.
+  default_branch: main
+
+  # Either `true` to allow squash-merging pull requests, or `false` to prevent
+  # squash-merging.
+  allow_squash_merge: true
+
+  # Either `true` to allow merging pull requests with a merge commit, or `false`
+  # to prevent merging pull requests with merge commits.
+  allow_merge_commit: false
+
+  # Either `true` to allow rebase-merging pull requests, or `false` to prevent
+  # rebase-merging.
+  allow_rebase_merge: false
+
+  # Either `true` to allow auto-merge on pull requests, or `false` to disallow auto-merge.
+  allow_auto_merge: true
+
+  # Either `true` to allow automatically deleting head branches when pull requests are merged,
+  # or `false` to prevent automatic deletion.
+  delete_branch_on_merge: true
+
+  # Either `true` to enable automatic security fixes, or `false` to disable them.
+  enable_automated_security_fixes: true
+
+  # Either `true` to enable vulnerability alerts, or `false` to disable them.
+  enable_vulnerability_alerts: true
+
+# Branch protection settings
+branches:
+  - name: main
+    # https://docs.github.com/en/rest/reference/repos#update-branch-protection
+    # Branch Protection settings. Set to null to disable
+    protection:
+      # Required. Require at least one approving review on a pull request, before merging.
+      # Set to null to disable for solo contributors
+      required_pull_request_reviews: null
+
+      # Required. Require status checks to pass before merging.
+      required_status_checks:
+        # Required. Require branches to be up to date before merging.
+        strict: true
+        # Required. The list of status checks to require in order to merge into this branch
+        checks: []
+
+      # Required. Enforce all configured restrictions for administrators.
+      enforce_admins: false
+
+      # Prevent merge commits from being pushed to matching branches
+      required_linear_history: true
+
+      # Required. Restrict who can push to this branch. Team and user restrictions are only
+      # available for organization-owned repositories. Set to null to disable.
+      restrictions: null
+
+      # Required signatures
+      required_signatures: false
+
+      # Allow force pushes
+      allow_force_pushes: false
+
+      # Allow deletions
+      allow_deletions: false
+
+      # Required conversation resolution before merging
+      required_conversation_resolution: true
+
+      # Lock branch - prevents all users from pushing to the branch
+      lock_branch: false
+
+      # Allow fork syncing
+      allow_fork_syncing: true
