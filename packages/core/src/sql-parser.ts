@@ -5,12 +5,32 @@
 import type { ParsedQuery } from './types.js';
 
 /**
+ * Options for SQL template parsing
+ */
+export interface ParseOptions {
+  /**
+   * Whether to normalize whitespace in the SQL query.
+   * When enabled, collapses multiple spaces into single spaces and
+   * removes spaces around commas and parentheses.
+   *
+   * Note: This is safe for tagged templates since string literal values
+   * are extracted before normalization. Only affects SQL structure.
+   *
+   * Default: true
+   */
+  normalizeWhitespace?: boolean;
+}
+
+/**
  * Parse a SQL template and extract parameters
  */
 export function parseSqlTemplate(
   strings: TemplateStringsArray,
-  values: unknown[]
+  values: unknown[],
+  options: ParseOptions = {}
 ): ParsedQuery {
+  const { normalizeWhitespace = true } = options;
+
   // Combine the template strings with parameter placeholders
   let sql = '';
   const params: unknown[] = [];
@@ -26,12 +46,18 @@ export function parseSqlTemplate(
   }
 
   // Clean up the SQL (remove extra whitespace, normalize)
-  sql = sql
-    .trim()
-    .replace(/\s+/g, ' ')
-    .replace(/\s*,\s*/g, ', ')
-    .replace(/\s*\(\s*/g, '(')
-    .replace(/\s*\)\s*/g, ')');
+  // Note: This only affects the SQL structure, not string literal values
+  // which have already been extracted into params
+  if (normalizeWhitespace) {
+    sql = sql
+      .trim()
+      .replace(/\s+/g, ' ')
+      .replace(/\s*,\s*/g, ', ')
+      .replace(/\s*\(\s*/g, '(')
+      .replace(/\s*\)\s*/g, ')');
+  } else {
+    sql = sql.trim();
+  }
 
   return {
     sql,
