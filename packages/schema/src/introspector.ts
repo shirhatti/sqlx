@@ -87,7 +87,8 @@ export class SchemaIntrospector {
       .join(', ');
 
     // Preserve schema casing
-    const schemaQuoted = schema !== schema.toUpperCase() ? schema : schema.toUpperCase();
+    const schemaQuoted =
+      schema !== schema.toUpperCase() ? schema : schema.toUpperCase();
 
     const query = `
       SELECT
