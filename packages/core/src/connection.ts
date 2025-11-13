@@ -18,26 +18,60 @@ export class SnowflakeConnection {
    */
   async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.connection = snowflake.createConnection({
-        account: this.config.account,
-        username: this.config.username,
-        password: this.config.password,
-        warehouse: this.config.warehouse,
-        database: this.config.database,
-        schema: this.config.schema,
-        role: this.config.role,
-        authenticator: this.config.authenticator,
-        privateKeyPath: this.config.privateKeyPath,
-        privateKeyPass: this.config.privateKeyPass,
-      });
+      try {
+        this.connection = snowflake.createConnection({
+          account: this.config.account,
+          username: this.config.username,
+          password: this.config.password,
+          warehouse: this.config.warehouse,
+          database: this.config.database,
+          schema: this.config.schema,
+          role: this.config.role,
+          authenticator: this.config.authenticator,
+          privateKeyPath: this.config.privateKeyPath,
+          privateKeyPass: this.config.privateKeyPass,
+        });
 
-      this.connection.connect((err) => {
-        if (err) {
-          reject(new Error(`Failed to connect to Snowflake: ${err.message}`));
-        } else {
-          resolve();
-        }
-      });
+        this.connection.connect((err) => {
+          if (err) {
+            // Provide more specific error messages based on error codes
+            let errorMessage = `Failed to connect to Snowflake: ${err.message}`;
+
+            // Type assertion for Snowflake error
+            const snowflakeErr = err as {
+              code?: string;
+              sqlState?: string;
+              message: string;
+            };
+
+            if (snowflakeErr.code === 'ENOTFOUND') {
+              errorMessage = `Invalid Snowflake account '${this.config.account}'. Please verify the account identifier is correct.`;
+            } else if (
+              snowflakeErr.code === '390100' ||
+              snowflakeErr.sqlState === '08001'
+            ) {
+              errorMessage = `Authentication failed for user '${this.config.username}'. Please verify your credentials.`;
+            } else if (snowflakeErr.code === 'ETIMEDOUT') {
+              errorMessage = `Connection timeout when connecting to Snowflake account '${this.config.account}'. Please check your network connection.`;
+            } else if (snowflakeErr.code === '390201') {
+              errorMessage = `Invalid warehouse '${this.config.warehouse}'. Please verify the warehouse exists and you have access.`;
+            } else if (snowflakeErr.code === '390189') {
+              errorMessage = `Invalid database or schema. Please verify '${this.config.database}${this.config.schema ? `.${this.config.schema}` : ''}' exists and you have access.`;
+            }
+
+            reject(new Error(errorMessage));
+          } else {
+            resolve();
+          }
+        });
+      } catch (err) {
+        // Handle synchronous errors during connection creation
+        reject(
+          new Error(
+            `Failed to create Snowflake connection: ${err instanceof Error ? err.message : String(err)}`
+          )
+        );
+      }
     });
   }
 
