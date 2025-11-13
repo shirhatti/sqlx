@@ -33,11 +33,11 @@ repository:
 
   # Either `true` to allow merging pull requests with a merge commit, or `false`
   # to prevent merging pull requests with merge commits.
-  allow_merge_commit: true
+  allow_merge_commit: false
 
   # Either `true` to allow rebase-merging pull requests, or `false` to prevent
   # rebase-merging.
-  allow_rebase_merge: true
+  allow_rebase_merge: false
 
   # Either `true` to allow auto-merge on pull requests, or `false` to disallow auto-merge.
   allow_auto_merge: true
@@ -59,18 +59,8 @@ branches:
     # Branch Protection settings. Set to null to disable
     protection:
       # Required. Require at least one approving review on a pull request, before merging.
-      required_pull_request_reviews:
-        # The number of approvals required. (1-6)
-        required_approving_review_count: 1
-        # Dismiss approved reviews automatically when a new commit is pushed.
-        dismiss_stale_reviews: true
-        # Blocks merge until code owners have reviewed.
-        require_code_owner_reviews: false
-        # Whether the most recent reviewable push must be approved by someone other than the person who pushed it.
-        require_last_push_approval: false
-        # Specify which users and teams can dismiss pull request reviews.
-        # Pass an empty dismissal_restrictions object to disable.
-        dismissal_restrictions: {}
+      # Set to null to disable for solo contributors
+      required_pull_request_reviews: null
 
       # Required. Require status checks to pass before merging.
       required_status_checks:
@@ -83,7 +73,7 @@ branches:
       enforce_admins: false
 
       # Prevent merge commits from being pushed to matching branches
-      required_linear_history: false
+      required_linear_history: true
 
       # Required. Restrict who can push to this branch. Team and user restrictions are only
       # available for organization-owned repositories. Set to null to disable.
