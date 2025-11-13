@@ -3,7 +3,7 @@
  */
 
 import snowflake from 'snowflake-sdk';
-import type { SnowflakeConfig, QueryResult } from './types.js';
+import type { SnowflakeConfig, QueryResult, SnowflakeError } from './types.js';
 
 /**
  * Snowflake error codes
@@ -70,11 +70,7 @@ export class SnowflakeConnection {
             let errorMessage = `Failed to connect to Snowflake: ${err.message}`;
 
             // Type assertion for Snowflake error
-            const snowflakeErr = err as {
-              code?: string;
-              sqlState?: string;
-              message: string;
-            };
+            const snowflakeErr = err as SnowflakeError;
 
             if (snowflakeErr.code === NODE_ERROR_CODES.NOT_FOUND) {
               errorMessage = `Invalid Snowflake account '${this.config.account}'. Please verify the account identifier is correct.`;

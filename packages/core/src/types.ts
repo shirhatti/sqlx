@@ -89,3 +89,16 @@ export interface Query<T> {
   execute(): Promise<T[]>;
   toSQL(): ParsedQuery;
 }
+
+/**
+ * Snowflake error interface
+ * Represents the error structure returned by the Snowflake SDK
+ */
+export interface SnowflakeError extends Error {
+  /** Error code (e.g., '390100' for auth failure, 'ENOTFOUND' for DNS errors) */
+  code?: string;
+  /** SQL state code (e.g., '08001' for connection exceptions) */
+  sqlState?: string;
+  /** Error message */
+  message: string;
+}
