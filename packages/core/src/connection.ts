@@ -31,7 +31,7 @@ export class SnowflakeConnection {
         privateKeyPass: this.config.privateKeyPass,
       });
 
-      this.connection.connect((err, conn) => {
+      this.connection.connect((err) => {
         if (err) {
           reject(new Error(`Failed to connect to Snowflake: ${err.message}`));
         } else {
@@ -46,7 +46,7 @@ export class SnowflakeConnection {
    */
   async execute<T>(
     sqlText: string,
-    binds: any[] = []
+    binds: unknown[] = []
   ): Promise<QueryResult<T>> {
     if (!this.connection) {
       throw new Error('Not connected to Snowflake. Call connect() first.');
@@ -56,10 +56,12 @@ export class SnowflakeConnection {
       this.connection!.execute({
         sqlText,
         binds,
-        complete: (err, stmt, rows) => {
+        complete: (err, _stmt, rows) => {
           if (err) {
             reject(
-              new Error(`Query execution failed: ${err.message}\nSQL: ${sqlText}`)
+              new Error(
+                `Query execution failed: ${err.message}\nSQL: ${sqlText}`
+              )
             );
           } else {
             resolve({

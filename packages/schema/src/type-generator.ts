@@ -6,7 +6,6 @@ import type {
   ColumnInfo,
   TableInfo,
   TypeMapping,
-  DEFAULT_TYPE_MAPPINGS,
   GeneratedInterface,
   GeneratedProperty,
 } from './types.js';
@@ -192,7 +191,9 @@ export type JsonValue = JsonPrimitive | JsonArray | JsonObject;
   private toCamelCase(str: string): string {
     return str
       .toLowerCase()
-      .replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      .replace(/_([a-z])/g, (_: string, letter: string) =>
+        letter.toUpperCase()
+      );
   }
 
   /**

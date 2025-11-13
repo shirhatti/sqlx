@@ -15,6 +15,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "test": "vitest",
+    "test:ci": "vitest run",
     "clean": "rm -rf dist"
   },
   "dependencies": {

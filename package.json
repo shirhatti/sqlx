@@ -2,6 +2,7 @@
   "name": "@shirhatti/sqlx",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Type-safe Snowflake query builder with TSX",
   "workspaces": [
     "packages/*"
@@ -9,19 +10,38 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
+    "test:ci": "pnpm -r run test:ci",
     "lint": "pnpm -r lint",
     "clean": "pnpm -r clean",
-    "dev": "pnpm -r --parallel dev"
+    "dev": "pnpm -r --parallel dev",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "@types/node": "^20.10.0",
-    "typescript": "^5.3.3",
-    "vitest": "^1.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.46.4",
+    "@typescript-eslint/parser": "^8.46.4",
+    "eslint": "^9.39.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
     "prettier": "^3.1.0",
-    "eslint": "^8.55.0"
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.46.4",
+    "vitest": "^1.0.4"
   },
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,json,md}": [
+      "prettier --write"
+    ]
   }
 }
