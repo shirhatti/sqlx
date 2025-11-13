@@ -20,7 +20,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "snowflake-sdk": "^1.9.3"
+    "snowflake-sdk": "^2.0.4"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
