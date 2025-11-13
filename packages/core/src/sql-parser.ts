@@ -160,7 +160,6 @@ export function validateSql(
           `Potentially dangerous SQL pattern detected: ${description}. ` +
             'If this is intentional, use { skipDangerousPatternCheck: true }'
         );
-        break;
       }
     }
   }

@@ -16,10 +16,25 @@ export class SchemaIntrospector {
    */
   async getTables(config: IntrospectionConfig): Promise<TableInfo[]> {
     // Preserve original casing for schemas
-    // Note: Snowflake stores unquoted identifiers in UPPERCASE by default.
-    // If users have quoted identifiers (e.g., "mySchema"), they need to pass
-    // them with exact casing. For standard unquoted identifiers, we convert
-    // to uppercase to match Snowflake's storage format.
+    //
+    // IMPORTANT: Snowflake identifier casing rules:
+    // 1. Unquoted identifiers (e.g., CREATE SCHEMA MySchema) are stored as UPPERCASE: MYSCHEMA
+    // 2. Quoted identifiers (e.g., CREATE SCHEMA "MySchema") preserve exact case: MySchema
+    //
+    // Current heuristic: If the schema name contains any lowercase letters,
+    // we assume it's a quoted identifier and preserve its casing.
+    //
+    // LIMITATION: This heuristic has edge cases:
+    // - If you created: CREATE SCHEMA MySchema (unquoted)
+    //   Snowflake stores it as: MYSCHEMA
+    //   But if you pass "MySchema" in config, we'll query for 'MySchema' (quoted)
+    //   This will fail with "schema not found"
+    //
+    // RECOMMENDED USAGE:
+    // - For standard schemas (created unquoted): Pass uppercase in config: ["PUBLIC", "CORE"]
+    // - For case-sensitive schemas (created quoted): Pass exact case in config: ["mySchema"]
+    //
+    // TODO: Consider adding a config option to explicitly mark identifiers as quoted vs unquoted
     const schemasIn = config.schemas
       .map((s) => {
         // Check if schema contains lowercase letters - if so, preserve it
@@ -76,7 +91,8 @@ export class SchemaIntrospector {
     schema: string,
     tables: string[]
   ): Promise<ColumnInfo[]> {
-    // Preserve casing for tables similar to schemas
+    // Preserve casing for tables using the same heuristic as schemas
+    // See getTables() for full documentation on identifier casing
     const tablesIn = tables
       .map((t) => {
         if (t !== t.toUpperCase()) {
@@ -86,7 +102,7 @@ export class SchemaIntrospector {
       })
       .join(', ');
 
-    // Preserve schema casing
+    // Preserve schema casing using the same heuristic
     const schemaQuoted =
       schema !== schema.toUpperCase() ? schema : schema.toUpperCase();
 
