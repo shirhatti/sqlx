@@ -98,5 +98,23 @@ describe('validateSql', () => {
 
     expect(result.valid).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
+    expect(result.errors[0]).toContain('DROP statement after semicolon');
+  });
+
+  it('should allow skipping dangerous pattern check', () => {
+    const sql = 'SELECT * FROM users; DROP TABLE users;';
+    const result = validateSql(sql, { skipDangerousPatternCheck: true });
+
+    // Should only fail on unbalanced parentheses if any, not on dangerous patterns
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('should detect DELETE statement patterns', () => {
+    const sql = 'SELECT * FROM users; DELETE FROM users WHERE id = 1;';
+    const result = validateSql(sql);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('DELETE statement after semicolon');
   });
 });
