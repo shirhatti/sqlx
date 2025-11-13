@@ -5,7 +5,13 @@
 import { writeFile, mkdir } from 'fs/promises';
 import { dirname, resolve } from 'path';
 import { SnowflakeConnection } from '@shirhatti/sqlx-core';
-import { SchemaIntrospector, TypeGenerator } from '@shirhatti/sqlx-schema';
+import {
+  SchemaIntrospector,
+  TypeGenerator,
+  type TableInfo,
+  type ColumnInfo,
+  type GeneratedInterface,
+} from '@shirhatti/sqlx-schema';
 import type { SqlxConfig } from '../config.js';
 
 export interface GenerateOptions {
@@ -18,25 +24,21 @@ export async function generate(options: GenerateOptions): Promise<void> {
 
   if (verbose) {
     console.log('Connecting to Snowflake...');
-
     console.log(`Account: ${config.connection.account}`);
-
     console.log(`Database: ${config.connection.database}`);
     console.log(`Schemas: ${config.schemas.join(', ')}`);
   }
 
   // Connect to Snowflake
-
-  const connection = new SnowflakeConnection(config.connection);
-
+  const connection: SnowflakeConnection = new SnowflakeConnection(
+    config.connection
+  );
   await connection.connect();
 
   try {
     // Test connection
-
-    const introspector = new SchemaIntrospector(connection);
-
-    const isConnected = await introspector.testConnection();
+    const introspector: SchemaIntrospector = new SchemaIntrospector(connection);
+    const isConnected: boolean = await introspector.testConnection();
 
     if (!isConnected) {
       throw new Error('Failed to connect to Snowflake');
@@ -55,15 +57,16 @@ export async function generate(options: GenerateOptions): Promise<void> {
       includeTables: config.includeTables,
     };
 
-    const tables = await introspector.getTables(introspectionConfig);
+    const tables: TableInfo[] =
+      await introspector.getTables(introspectionConfig);
 
     if (verbose) {
       console.log(`Found ${tables.length} tables`);
     }
 
     // Get all columns
-
-    const columns = await introspector.getAllColumns(introspectionConfig);
+    const columns: ColumnInfo[] =
+      await introspector.getAllColumns(introspectionConfig);
 
     if (verbose) {
       console.log(`Found ${columns.length} columns`);
@@ -71,35 +74,30 @@ export async function generate(options: GenerateOptions): Promise<void> {
     }
 
     // Generate types
-
-    const typeGenerator = new TypeGenerator(config.typeOverrides);
-
-    const interfaces = tables.map((table) => {
+    const typeGenerator: TypeGenerator = new TypeGenerator(
+      config.typeOverrides
+    );
+    const interfaces: GeneratedInterface[] = tables.map((table) => {
       const tableColumns = columns.filter(
         (col) =>
           col.table_schema === table.table_schema &&
           col.table_name === table.table_name
       );
-
       return typeGenerator.generateInterface(table, tableColumns);
     });
 
-    const generatedCode = typeGenerator.generateFile(interfaces);
+    const generatedCode: string = typeGenerator.generateFile(interfaces);
 
     // Write to file
     const outputPath = resolve(process.cwd(), config.output);
     await mkdir(dirname(outputPath), { recursive: true });
-
     await writeFile(outputPath, generatedCode, 'utf-8');
 
     if (verbose) {
       console.log(`✓ Written to ${config.output}`);
       console.log('\nSummary:');
-
       console.log(`  Tables: ${tables.length}`);
-
       console.log(`  Columns: ${columns.length}`);
-
       console.log(`  Interfaces: ${interfaces.length}`);
     } else {
       console.log(`✓ Generated types: ${config.output}`);

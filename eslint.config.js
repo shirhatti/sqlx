@@ -26,6 +26,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ['packages/cli/**/*.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+  {
     ignores: ['dist/', 'node_modules/', '**/*.js', '!eslint.config.js'],
   },
   {

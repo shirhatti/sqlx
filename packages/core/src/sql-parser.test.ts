@@ -22,7 +22,7 @@ describe('parseSqlTemplate', () => {
       ' AND region = ',
       '',
     ] as unknown as TemplateStringsArray;
-    const values = [1000, 'US'];
+    const values: unknown[] = [1000, 'US'];
 
     const result = parseSqlTemplate(strings, values);
 
@@ -59,7 +59,7 @@ describe('parseSqlTemplate', () => {
       'SELECT  email,  revenue  FROM   users   WHERE   revenue >  ',
       '',
     ] as unknown as TemplateStringsArray;
-    const values = [1000];
+    const values: unknown[] = [1000];
 
     const result = parseSqlTemplate(strings, values);
 
