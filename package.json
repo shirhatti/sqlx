@@ -36,8 +36,11 @@
     "pnpm": ">=8.0.0"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
+    "packages/**/*.{ts,tsx}": [
       "eslint --fix",
+      "prettier --write"
+    ],
+    "examples/**/*.{ts,tsx}": [
       "prettier --write"
     ],
     "*.{js,jsx,json,md}": [

@@ -146,7 +146,7 @@ describe('TypeGenerator', () => {
       expect(code).toContain('export interface Users');
       expect(code).toContain('userId: number;');
       expect(code).toContain('email: string;');
-      expect(code).toContain('revenue?: number | null;');
+      expect(code).toContain('revenue: number | null;');
     });
 
     it('should include comments', () => {

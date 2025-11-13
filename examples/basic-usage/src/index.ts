@@ -9,9 +9,6 @@
  */
 
 /* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import { configureConnection, sql } from '@shirhatti/sqlx-core';
 
