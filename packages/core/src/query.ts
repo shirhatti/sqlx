@@ -30,15 +30,11 @@ class SqlQuery<T> implements Query<T> {
     }
 
     try {
-      const result = await conn.execute<T>(
-        this.parsed.sql,
-        this.parsed.params
-      );
+      const result = await conn.execute<T>(this.parsed.sql, this.parsed.params);
       return result.rows;
     } catch (err) {
       // Re-throw with better error context
-      const errorMessage =
-        err instanceof Error ? err.message : String(err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
       throw new Error(
         `Query execution failed: ${errorMessage}\nSQL: ${this.parsed.sql}\nParameters: ${JSON.stringify(this.parsed.params)}`
       );
@@ -57,6 +53,18 @@ class SqlQuery<T> implements Query<T> {
    */
   toString(): string {
     return this.parsed.sql;
+  }
+
+  /**
+   * Make SqlQuery thenable so it can be await-ed directly
+   * This allows: const results = await sql`SELECT...`
+   * Instead of: const results = await sql`SELECT...`.execute()
+   */
+  then<TResult1 = T[], TResult2 = never>(
+    onfulfilled?: ((value: T[]) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+  ): Promise<TResult1 | TResult2> {
+    return this.execute().then(onfulfilled, onrejected);
   }
 }
 
