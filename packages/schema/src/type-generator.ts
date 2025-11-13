@@ -113,9 +113,11 @@ export class TypeGenerator {
         code += `  /** ${prop.comment} */\n`;
       }
 
-      const optional = prop.nullable ? '?' : '';
+      // For nullable columns, use ` | null` but not `?` (optional)
+      // In Snowflake, columns always exist but can have NULL values
+      // Using both `?` and `| null` would incorrectly allow undefined
       const nullType = prop.nullable ? ' | null' : '';
-      code += `  ${prop.name}${optional}: ${prop.type}${nullType};\n`;
+      code += `  ${prop.name}: ${prop.type}${nullType};\n`;
     }
 
     code += '}\n';
