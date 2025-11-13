@@ -159,11 +159,38 @@ export class SnowflakeConnection {
   }
 }
 
-// Global connection instance
+/**
+ * Global connection instance
+ *
+ * LIMITATION: This Phase 1 implementation uses a single global connection.
+ * This design has the following limitations:
+ *
+ * 1. **Single Account/Database**: Cannot connect to multiple Snowflake
+ *    accounts or databases simultaneously in the same process.
+ *
+ * 2. **Parallel Tests**: Running tests in parallel that require different
+ *    database connections will interfere with each other.
+ *
+ * 3. **No Connection Pooling**: All queries share the same connection,
+ *    which can become a bottleneck under high load.
+ *
+ * Future phases will address these limitations by:
+ * - Adding connection pooling support
+ * - Allowing sql() to accept an optional connection parameter
+ * - Supporting multiple connection instances via dependency injection
+ *
+ * For now, you can work around these limitations by:
+ * - Using separate processes for different connections
+ * - Running tests sequentially (test:ci already does this)
+ * - Manually managing connection state between tests
+ */
 let globalConnection: SnowflakeConnection | null = null;
 
 /**
  * Set the global connection to use for queries
+ *
+ * WARNING: Setting a new connection will affect all subsequent queries
+ * in the entire application. Use with caution in multi-tenant scenarios.
  */
 export function setConnection(connection: SnowflakeConnection): void {
   globalConnection = connection;
@@ -171,11 +198,13 @@ export function setConnection(connection: SnowflakeConnection): void {
 
 /**
  * Get the global connection
+ *
+ * @throws Error if no connection has been configured
  */
 export function getConnection(): SnowflakeConnection {
   if (!globalConnection) {
     throw new Error(
-      'No Snowflake connection configured. Call setConnection() first.'
+      'No Snowflake connection configured. Call setConnection() or configureConnection() first.'
     );
   }
   return globalConnection;
@@ -183,6 +212,24 @@ export function getConnection(): SnowflakeConnection {
 
 /**
  * Configure a global connection from config
+ *
+ * This is the recommended way to set up a connection for most applications.
+ * The connection will be used by all sql`` queries.
+ *
+ * @example
+ * ```typescript
+ * await configureConnection({
+ *   account: 'myaccount',
+ *   username: 'myuser',
+ *   password: 'mypassword',
+ *   warehouse: 'COMPUTE_WH',
+ *   database: 'MYDB',
+ *   schema: 'PUBLIC',
+ * });
+ *
+ * // Now you can run queries
+ * const users = await sql<User>`SELECT * FROM users`;
+ * ```
  */
 export async function configureConnection(
   config: SnowflakeConfig
