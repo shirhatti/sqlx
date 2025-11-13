@@ -7,8 +7,8 @@ import { parseSqlTemplate, validateSql } from './sql-parser.js';
 
 describe('parseSqlTemplate', () => {
   it('should parse simple query with no parameters', () => {
-    const strings = ['SELECT * FROM users'] as any as TemplateStringsArray;
-    const values: any[] = [];
+    const strings = ['SELECT * FROM users'] as unknown as TemplateStringsArray;
+    const values: unknown[] = [];
 
     const result = parseSqlTemplate(strings, values);
 
@@ -21,18 +21,22 @@ describe('parseSqlTemplate', () => {
       'SELECT * FROM users WHERE revenue > ',
       ' AND region = ',
       '',
-    ] as any as TemplateStringsArray;
+    ] as unknown as TemplateStringsArray;
     const values = [1000, 'US'];
 
     const result = parseSqlTemplate(strings, values);
 
-    expect(result.sql).toBe('SELECT * FROM users WHERE revenue > ? AND region = ?');
+    expect(result.sql).toBe(
+      'SELECT * FROM users WHERE revenue > ? AND region = ?'
+    );
     expect(result.params).toEqual([1000, 'US']);
   });
 
   it('should extract table name from FROM clause', () => {
-    const strings = ['SELECT email FROM analytics.core.users'] as any as TemplateStringsArray;
-    const values: any[] = [];
+    const strings = [
+      'SELECT email FROM analytics.core.users',
+    ] as unknown as TemplateStringsArray;
+    const values: unknown[] = [];
 
     const result = parseSqlTemplate(strings, values);
 
@@ -40,8 +44,10 @@ describe('parseSqlTemplate', () => {
   });
 
   it('should extract column names from SELECT', () => {
-    const strings = ['SELECT email, revenue FROM users'] as any as TemplateStringsArray;
-    const values: any[] = [];
+    const strings = [
+      'SELECT email, revenue FROM users',
+    ] as unknown as TemplateStringsArray;
+    const values: unknown[] = [];
 
     const result = parseSqlTemplate(strings, values);
 
@@ -52,12 +58,14 @@ describe('parseSqlTemplate', () => {
     const strings = [
       'SELECT  email,  revenue  FROM   users   WHERE   revenue >  ',
       '',
-    ] as any as TemplateStringsArray;
+    ] as unknown as TemplateStringsArray;
     const values = [1000];
 
     const result = parseSqlTemplate(strings, values);
 
-    expect(result.sql).toContain('SELECT email, revenue FROM users WHERE revenue > ?');
+    expect(result.sql).toContain(
+      'SELECT email, revenue FROM users WHERE revenue > ?'
+    );
   });
 });
 
@@ -85,7 +93,7 @@ describe('validateSql', () => {
   });
 
   it('should detect potentially dangerous patterns', () => {
-    const sql = "SELECT * FROM users; DROP TABLE users;";
+    const sql = 'SELECT * FROM users; DROP TABLE users;';
     const result = validateSql(sql);
 
     expect(result.valid).toBe(false);

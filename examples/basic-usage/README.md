@@ -155,6 +155,7 @@ SNOWFLAKE_SCHEMA=CORE
 ### Type Generation Fails
 
 Ensure:
+
 - Your Snowflake user has access to `INFORMATION_SCHEMA`
 - The database and schemas exist
 - The database name in `sqlx.config.json` matches your Snowflake database

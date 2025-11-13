@@ -8,7 +8,7 @@
 export type ColumnType<
   SelectType,
   InsertType = SelectType,
-  UpdateType = SelectType
+  UpdateType = SelectType,
 > = {
   __select__: SelectType;
   __insert__: InsertType;
@@ -19,21 +19,21 @@ export type ColumnType<
  * Extract the select type from a table definition
  */
 export type Selectable<T> = {
-  [K in keyof T]: T[K] extends ColumnType<infer S, any, any> ? S : T[K];
+  [K in keyof T]: T[K] extends ColumnType<infer S, unknown, unknown> ? S : T[K];
 };
 
 /**
  * Extract the insert type from a table definition
  */
 export type Insertable<T> = {
-  [K in keyof T]: T[K] extends ColumnType<any, infer I, any> ? I : T[K];
+  [K in keyof T]: T[K] extends ColumnType<unknown, infer I, unknown> ? I : T[K];
 };
 
 /**
  * Extract the update type from a table definition
  */
 export type Updateable<T> = {
-  [K in keyof T]: T[K] extends ColumnType<any, any, infer U> ? U : T[K];
+  [K in keyof T]: T[K] extends ColumnType<unknown, unknown, infer U> ? U : T[K];
 };
 
 /**
@@ -74,7 +74,7 @@ export interface QueryResult<T> {
  */
 export interface ParsedQuery {
   sql: string;
-  params: any[];
+  params: unknown[];
   metadata?: {
     table?: string;
     columns?: string[];

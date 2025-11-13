@@ -8,6 +8,11 @@
  * - Connection management
  */
 
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { configureConnection, sql } from '@shirhatti/sqlx-core';
 
 // Example 1: Simple Query
@@ -46,7 +51,6 @@ async function queryWithParameters() {
   }
 
   const minRevenue = 1000;
-  const regions = ['US', 'EU'];
 
   // Note: This is a simplified example. In production, you'd handle
   // the IN clause more elegantly
@@ -130,7 +134,7 @@ async function joinQuery() {
 }
 
 // Example 5: Working with Generated Types
-async function withGeneratedTypes() {
+function withGeneratedTypes() {
   console.log('\n=== Example 5: Using Generated Types ===\n');
 
   // If you've run `npx sqlx generate`, you can import the generated types:
@@ -140,9 +144,7 @@ async function withGeneratedTypes() {
   // const users = await sql<Core.Users>`SELECT * FROM analytics.core.users LIMIT 5`;
 
   console.log('Run `npx sqlx generate` to create type definitions!');
-  console.log(
-    'Then you can use them for full compile-time type safety.'
-  );
+  console.log('Then you can use them for full compile-time type safety.');
 }
 
 // Main function
@@ -169,7 +171,7 @@ async function main() {
     await queryWithParameters();
     await aggregationQuery();
     await joinQuery();
-    await withGeneratedTypes();
+    withGeneratedTypes();
 
     console.log('\n✅ All examples completed successfully!');
     process.exit(0);
@@ -182,5 +184,5 @@ async function main() {
 
 // Run if executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
+  void main();
 }

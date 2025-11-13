@@ -18,18 +18,24 @@ export async function generate(options: GenerateOptions): Promise<void> {
 
   if (verbose) {
     console.log('Connecting to Snowflake...');
+
     console.log(`Account: ${config.connection.account}`);
+
     console.log(`Database: ${config.connection.database}`);
     console.log(`Schemas: ${config.schemas.join(', ')}`);
   }
 
   // Connect to Snowflake
+
   const connection = new SnowflakeConnection(config.connection);
+
   await connection.connect();
 
   try {
     // Test connection
+
     const introspector = new SchemaIntrospector(connection);
+
     const isConnected = await introspector.testConnection();
 
     if (!isConnected) {
@@ -56,6 +62,7 @@ export async function generate(options: GenerateOptions): Promise<void> {
     }
 
     // Get all columns
+
     const columns = await introspector.getAllColumns(introspectionConfig);
 
     if (verbose) {
@@ -64,13 +71,16 @@ export async function generate(options: GenerateOptions): Promise<void> {
     }
 
     // Generate types
+
     const typeGenerator = new TypeGenerator(config.typeOverrides);
+
     const interfaces = tables.map((table) => {
       const tableColumns = columns.filter(
         (col) =>
           col.table_schema === table.table_schema &&
           col.table_name === table.table_name
       );
+
       return typeGenerator.generateInterface(table, tableColumns);
     });
 
@@ -79,13 +89,17 @@ export async function generate(options: GenerateOptions): Promise<void> {
     // Write to file
     const outputPath = resolve(process.cwd(), config.output);
     await mkdir(dirname(outputPath), { recursive: true });
+
     await writeFile(outputPath, generatedCode, 'utf-8');
 
     if (verbose) {
       console.log(`✓ Written to ${config.output}`);
       console.log('\nSummary:');
+
       console.log(`  Tables: ${tables.length}`);
+
       console.log(`  Columns: ${columns.length}`);
+
       console.log(`  Interfaces: ${interfaces.length}`);
     } else {
       console.log(`✓ Generated types: ${config.output}`);

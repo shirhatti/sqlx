@@ -190,7 +190,7 @@ const users = await sql<User>`
 `;
 
 // TypeScript knows the shape!
-users.forEach(user => {
+users.forEach((user) => {
   console.log(`${user.email}: $${user.revenue}`);
 });
 ```
@@ -336,7 +336,7 @@ const users = await sql<Core.Users>`
 `;
 
 // TypeScript knows all columns!
-users.forEach(user => {
+users.forEach((user) => {
   console.log(user.userId, user.email, user.revenue, user.region);
 });
 ```
@@ -358,32 +358,38 @@ const orders = await sql<UserOrder>`
 ## Roadmap
 
 ### ✅ Phase 1: Foundation (Complete)
+
 - Basic tagged template syntax
 - Schema introspection
 - Type generation
 - Simple SELECT queries
 
 ### 🚧 Phase 2: Query Building (Planned)
+
 - WHERE, JOIN, GROUP BY helpers
 - Query composition
 - Better parameter handling
 
 ### 🚧 Phase 3: TSX Support (Planned)
+
 - JSX/TSX components for queries
 - Lambda expressions
 - Component composition
 
 ### 🚧 Phase 4: Snowflake Features (Planned)
+
 - Time travel
 - VARIANT type support
 - FLATTEN operations
 
 ### 🚧 Phase 5: LSP & DX (Planned)
+
 - IDE autocomplete
 - Hover information
 - Error diagnostics
 
 ### 🚧 Phase 6: Production (Planned)
+
 - Performance optimization
 - Connection pooling
 - Comprehensive error handling
@@ -412,6 +418,7 @@ See [LICENSE](./LICENSE) file for details.
 ## Acknowledgments
 
 Inspired by:
+
 - [Kysely](https://kysely.dev/) - Type-safe SQL query builder
 - [sqlx (Rust)](https://github.com/launchbadge/sqlx) - Compile-time checked SQL
 - [Prisma](https://www.prisma.io/) - TypeScript ORM

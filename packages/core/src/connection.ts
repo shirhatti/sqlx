@@ -55,7 +55,7 @@ export class SnowflakeConnection {
     return new Promise((resolve, reject) => {
       this.connection!.execute({
         sqlText,
-        binds,
+        binds: binds as snowflake.Binds,
         complete: (err, _stmt, rows) => {
           if (err) {
             reject(

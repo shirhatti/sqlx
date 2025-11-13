@@ -52,9 +52,9 @@ class SqlQuery<T> implements Query<T> {
  * `
  * ```
  */
-export function sql<T = any>(
+export function sql<T = unknown>(
   strings: TemplateStringsArray,
-  ...values: any[]
+  ...values: unknown[]
 ): SqlQuery<T> {
   const parsed = parseSqlTemplate(strings, values);
 
@@ -74,7 +74,7 @@ export function sql<T = any>(
  */
 export async function executeQuery<T>(
   sqlText: string,
-  binds: any[] = []
+  binds: unknown[] = []
 ): Promise<T[]> {
   const conn = getConnection();
   const result = await conn.execute<T>(sqlText, binds);

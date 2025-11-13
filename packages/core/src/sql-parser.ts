@@ -9,11 +9,11 @@ import type { ParsedQuery } from './types.js';
  */
 export function parseSqlTemplate(
   strings: TemplateStringsArray,
-  values: any[]
+  values: unknown[]
 ): ParsedQuery {
   // Combine the template strings with parameter placeholders
   let sql = '';
-  const params: any[] = [];
+  const params: unknown[] = [];
 
   for (let i = 0; i < strings.length; i++) {
     sql += strings[i];
@@ -55,7 +55,7 @@ function extractMetadata(sql: string): {
   } = {};
 
   // Extract table name from FROM clause
-  const fromMatch = sql.match(/FROM\s+([a-zA-Z0-9_\.]+)/i);
+  const fromMatch = sql.match(/FROM\s+([a-zA-Z0-9_.]+)/i);
   if (fromMatch) {
     metadata.table = fromMatch[1];
   }
@@ -69,7 +69,9 @@ function extractMetadata(sql: string): {
         .split(',')
         .map((col) => {
           // Handle aliases (e.g., "col AS alias" or "col alias")
-          const aliasMatch = col.match(/\s+(?:AS\s+)?["']?([a-zA-Z0-9_]+)["']?\s*$/i);
+          const aliasMatch = col.match(
+            /\s+(?:AS\s+)?["']?([a-zA-Z0-9_]+)["']?\s*$/i
+          );
           if (aliasMatch) {
             return aliasMatch[1];
           }

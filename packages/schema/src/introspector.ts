@@ -33,6 +33,7 @@ export class SchemaIntrospector {
     `;
 
     const result = await this.connection.execute<TableInfo>(query);
+
     let tables = result.rows;
 
     // Filter by include/exclude patterns
@@ -87,6 +88,7 @@ export class SchemaIntrospector {
     `;
 
     const result = await this.connection.execute<ColumnInfo>(query);
+
     return result.rows;
   }
 
@@ -124,9 +126,7 @@ export class SchemaIntrospector {
    * Simple pattern matching (supports * wildcard)
    */
   private matchPattern(value: string, pattern: string): boolean {
-    const regexPattern = pattern
-      .replace(/\*/g, '.*')
-      .replace(/\?/g, '.');
+    const regexPattern = pattern.replace(/\*/g, '.*').replace(/\?/g, '.');
     const regex = new RegExp(`^${regexPattern}$`, 'i');
     return regex.test(value);
   }
@@ -138,7 +138,7 @@ export class SchemaIntrospector {
     try {
       await this.connection.execute('SELECT 1');
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
