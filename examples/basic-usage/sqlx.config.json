@@ -1,0 +1,20 @@
+{
+  "connection": {
+    "account": "${SNOWFLAKE_ACCOUNT}",
+    "warehouse": "${SNOWFLAKE_WAREHOUSE}",
+    "database": "ANALYTICS",
+    "schema": "CORE",
+    "role": "DEVELOPER"
+  },
+  "output": "./src/generated/db-types.ts",
+  "schemas": ["CORE", "STAGING"],
+  "typeOverrides": {
+    "VARIANT": "JsonValue",
+    "ARRAY": "JsonArray",
+    "OBJECT": "JsonObject"
+  },
+  "cache": {
+    "enabled": true,
+    "ttl": 3600
+  }
+}
