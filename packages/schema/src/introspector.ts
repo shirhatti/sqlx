@@ -43,8 +43,8 @@ export class SchemaIntrospector {
       tables = tables.filter((table) =>
         config.includeTables!.some((pattern) =>
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-          this.matchPattern(table.table_name, pattern),
-        ),
+          this.matchPattern(table.table_name, pattern)
+        )
       );
     }
 
@@ -54,8 +54,8 @@ export class SchemaIntrospector {
         (table) =>
           !config.excludeTables!.some((pattern) =>
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-            this.matchPattern(table.table_name, pattern),
-          ),
+            this.matchPattern(table.table_name, pattern)
+          )
       );
     }
 
