@@ -15,8 +15,20 @@ export class SchemaIntrospector {
    * Get all tables in specified schemas
    */
   async getTables(config: IntrospectionConfig): Promise<TableInfo[]> {
+    // Preserve original casing for schemas
+    // Note: Snowflake stores unquoted identifiers in UPPERCASE by default.
+    // If users have quoted identifiers (e.g., "mySchema"), they need to pass
+    // them with exact casing. For standard unquoted identifiers, we convert
+    // to uppercase to match Snowflake's storage format.
     const schemasIn = config.schemas
-      .map((s) => `'${s.toUpperCase()}'`)
+      .map((s) => {
+        // Check if schema contains lowercase letters - if so, preserve it
+        // as it's likely a quoted identifier
+        if (s !== s.toUpperCase()) {
+          return `'${s}'`;
+        }
+        return `'${s.toUpperCase()}'`;
+      })
       .join(', ');
 
     const query = `
@@ -71,7 +83,18 @@ export class SchemaIntrospector {
     schema: string,
     tables: string[]
   ): Promise<ColumnInfo[]> {
-    const tablesIn = tables.map((t) => `'${t.toUpperCase()}'`).join(', ');
+    // Preserve casing for tables similar to schemas
+    const tablesIn = tables
+      .map((t) => {
+        if (t !== t.toUpperCase()) {
+          return `'${t}'`;
+        }
+        return `'${t.toUpperCase()}'`;
+      })
+      .join(', ');
+
+    // Preserve schema casing
+    const schemaQuoted = schema !== schema.toUpperCase() ? schema : schema.toUpperCase();
 
     const query = `
       SELECT
@@ -88,7 +111,7 @@ export class SchemaIntrospector {
         numeric_scale,
         comment
       FROM ${database}.INFORMATION_SCHEMA.COLUMNS
-      WHERE table_schema = '${schema.toUpperCase()}'
+      WHERE table_schema = '${schemaQuoted}'
         AND table_name IN (${tablesIn})
       ORDER BY table_name, ordinal_position
     `;
